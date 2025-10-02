@@ -144,12 +144,13 @@
     </div>
     <nav class="sidebar" id="sidebar">
         <ul>
-            <li><a href="/webapp/penyusun.html"><i class="fa fa-box fa-fw"></i> Penghitung Material Penyusun</a></li>
-            <li><a href="/webapp/waktu.html"><i class="fa fa-clock fa-fw"></i> Penghitung Waktu Produksi</a></li>
-            <li><a href="/webapp/barang.html"><i class="fa fa-boxes-stacked fa-fw"></i> Penghitung Barang EA</a></li>
-            <li><a href="/webapp/box.html"><i class="fa fa-archive fa-fw"></i> Penghitung Box EA</a></li>
+            <li><a href="/dashboard.html"><i class="fa fa-home fa-fw"></i> Dashboard</a></li>
+            <li><a href="/penyusun.html"><i class="fa fa-box fa-fw"></i> Penghitung Material Penyusun</a></li>
+            <li><a href="/waktu.html"><i class="fa fa-clock fa-fw"></i> Penghitung Waktu Produksi</a></li>
+            <li><a href="/barang.html"><i class="fa fa-boxes-stacked fa-fw"></i> Penghitung Barang EA</a></li>
+            <li><a href="/box.html"><i class="fa fa-archive fa-fw"></i> Penghitung Box EA</a></li>
             <hr>
-            
+            <li><a href="#" id="logoutBtn"><i class="fa fa-sign-out-alt fa-fw"></i> Logout</a></li>
         </ul>
     </nav>
     
@@ -367,5 +368,18 @@
         menuBtn.addEventListener('click', toggleSidebar);
         overlay.addEventListener('click', toggleSidebar);
         </script>
+
+    <script type="module">
+        import { requireAuth, logoutUser, updateUserActivity } from './supabase-client.js';
+
+        requireAuth();
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await logoutUser();
+        });
+
+        setInterval(updateUserActivity, 60000);
+    </script>
 </body>
 </html>
