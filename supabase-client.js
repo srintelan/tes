@@ -9,98 +9,141 @@ export async function getCurrentUser() {
     const userId = sessionStorage.getItem('userId');
     if (!userId) return null;
 
-    const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .maybeSingle();
 
-    return error ? null : data;
+        if (error) {
+            console.error('Error getting current user:', error);
+            return null;
+        }
+
+        return data;
+    } catch (err) {
+        console.error('Exception getting current user:', err);
+        return null;
+    }
 }
 
 export async function loginUser(username, password) {
-    const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('username', username)
-        .eq('password', password)
-        .maybeSingle();
+    try {
+        // Query untuk mencari user dengan username dan password
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('username', username)
+            .eq('password', password)
+            .maybeSingle();
 
-    if (error || !data) {
-        return { success: false, error: 'Username atau password salah' };
+        if (error) {
+            console.error('Login error:', error);
+            return { success: false, error: 'Terjadi kesalahan saat login. Silakan coba lagi.' };
+        }
+
+        if (!data) {
+            return { success: false, error: 'Username atau password salah' };
+        }
+
+        // Simpan data user ke sessionStorage
+        sessionStorage.setItem('userId', data.id);
+        sessionStorage.setItem('username', data.username);
+
+        // Mark user as online
+        await markUserOnline(data.id, data.username);
+
+        return { success: true, user: data };
+    } catch (err) {
+        console.error('Exception during login:', err);
+        return { success: false, error: 'Terjadi kesalahan. Silakan coba lagi.' };
     }
-
-    sessionStorage.setItem('userId', data.id);
-    sessionStorage.setItem('username', data.username);
-
-    await markUserOnline(data.id, data.username);
-
-    return { success: true, user: data };
 }
 
 export async function signupUser(nik, username, email, password) {
-    const { data: existingUser } = await supabase
-        .from('users')
-        .select('username, email, nik')
-        .or(`username.eq.${username},email.eq.${email},nik.eq.${nik}`)
-        .maybeSingle();
+    try {
+        // Cek apakah username, email, atau NIK sudah digunakan
+        const { data: existingUser, error: checkError } = await supabase
+            .from('users')
+            .select('username, email, nik')
+            .or(`username.eq.${username},email.eq.${email},nik.eq.${nik}`)
+            .maybeSingle();
 
-    if (existingUser) {
-        if (existingUser.username === username) {
-            return { success: false, error: 'Username sudah digunakan' };
+        if (checkError && checkError.code !== 'PGRST116') {
+            console.error('Check existing user error:', checkError);
+            return { success: false, error: 'Terjadi kesalahan. Silakan coba lagi.' };
         }
-        if (existingUser.email === email) {
-            return { success: false, error: 'Email sudah digunakan' };
+
+        if (existingUser) {
+            if (existingUser.username === username) {
+                return { success: false, error: 'Username sudah digunakan' };
+            }
+            if (existingUser.email === email) {
+                return { success: false, error: 'Email sudah digunakan' };
+            }
+            if (existingUser.nik === nik) {
+                return { success: false, error: 'NIK sudah digunakan' };
+            }
         }
-        if (existingUser.nik === nik) {
-            return { success: false, error: 'NIK sudah digunakan' };
+
+        // Insert user baru
+        const { data, error } = await supabase
+            .from('users')
+            .insert([{ nik, username, email, password }])
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Signup error:', error);
+            return { success: false, error: 'Gagal membuat akun. Silakan coba lagi.' };
         }
+
+        return { success: true, user: data };
+    } catch (err) {
+        console.error('Exception during signup:', err);
+        return { success: false, error: 'Terjadi kesalahan. Silakan coba lagi.' };
     }
-
-    const { data, error } = await supabase
-        .from('users')
-        .insert([{ nik, username, email, password }])
-        .select()
-        .single();
-
-    if (error) {
-        return { success: false, error: 'Gagal membuat akun. Silakan coba lagi.' };
-    }
-
-    return { success: true, user: data };
 }
 
 export async function logoutUser() {
-    const userId = sessionStorage.getItem('userId');
-    if (userId) {
-        await supabase
-            .from('online_users')
-            .delete()
-            .eq('user_id', userId);
+    try {
+        const userId = sessionStorage.getItem('userId');
+        if (userId) {
+            await supabase
+                .from('online_users')
+                .delete()
+                .eq('user_id', userId);
+        }
+    } catch (err) {
+        console.error('Error during logout:', err);
+    } finally {
+        sessionStorage.removeItem('userId');
+        sessionStorage.removeItem('username');
+        window.location.href = '/login.html';
     }
-
-    sessionStorage.removeItem('userId');
-    sessionStorage.removeItem('username');
-
-    window.location.href = '/login.html';
 }
 
 export async function markUserOnline(userId, username) {
-    const { data: existing } = await supabase
-        .from('online_users')
-        .select('id')
-        .eq('user_id', userId)
-        .maybeSingle();
+    try {
+        const { data: existing } = await supabase
+            .from('online_users')
+            .select('id')
+            .eq('user_id', userId)
+            .maybeSingle();
 
-    if (existing) {
-        await supabase
-            .from('online_users')
-            .update({ last_seen: new Date().toISOString() })
-            .eq('user_id', userId);
-    } else {
-        await supabase
-            .from('online_users')
-            .insert([{ user_id: userId, username }]);
+        if (existing) {
+            await supabase
+                .from('online_users')
+                .update({ last_seen: new Date().toISOString() })
+                .eq('user_id', userId);
+        } else {
+            await supabase
+                .from('online_users')
+                .insert([{ user_id: userId, username }]);
+        }
+    } catch (err) {
+        console.error('Error marking user online:', err);
     }
 }
 
@@ -113,15 +156,25 @@ export async function updateUserActivity() {
 }
 
 export async function getOnlineUsers() {
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    try {
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
 
-    const { data, error } = await supabase
-        .from('online_users')
-        .select('username, last_seen')
-        .gte('last_seen', fiveMinutesAgo)
-        .order('username');
+        const { data, error } = await supabase
+            .from('online_users')
+            .select('username, last_seen')
+            .gte('last_seen', fiveMinutesAgo)
+            .order('username');
 
-    return error ? [] : data;
+        if (error) {
+            console.error('Error getting online users:', error);
+            return [];
+        }
+
+        return data || [];
+    } catch (err) {
+        console.error('Exception getting online users:', err);
+        return [];
+    }
 }
 
 export function isAuthenticated() {
