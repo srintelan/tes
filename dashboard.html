@@ -68,33 +68,21 @@
             transform: translateX(0);
         }
 
-        /* 🔥 Perbaikan bagian header sidebar */
         .sidebar-header {
             padding: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             margin-bottom: 10px;
-            display: flex;
-            flex-direction: column; /* susun vertikal */
-            align-items: flex-start; /* rata kiri */
-            gap: 6px; /* jarak antar teks */
-            word-break: break-word;
         }
 
         .sidebar-header h2 {
-            font-size: 16px;
-            margin: 0;
-            line-height: 1.4;
-            word-wrap: break-word;
+            font-size: 18px;
+            margin-bottom: 5px;
         }
 
         .sidebar-header p {
-            font-size: 13px;
+            font-size: 14px;
             opacity: 0.9;
-            margin: 0;
-            line-height: 1.3;
-            white-space: normal;
-            overflow-wrap: anywhere; /* email panjang otomatis wrap */
         }
 
         .sidebar ul {
@@ -328,6 +316,30 @@
             color: #666;
             font-size: 14px;
         }
+
+@media (max-width:768px){
+
+ /* Sidebar header */
+ #sidebar .sidebar-header{
+  padding-bottom:65px;
+  transform:translatex(0px) translatey(0px);
+ }
+ 
+ /* User greeting */
+ #userGreeting{
+  position:relative;
+  top:34px;
+ }
+ 
+ /* User email */
+ #userEmail{
+  position:relative;
+  top:29px;
+ }
+ 
+}
+
+
     </style>
 </head>
 <body>
@@ -338,8 +350,8 @@
 
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h2 id="userGreeting">Halo, User</h2>
-            <p id="userEmail">email@domain.com</p>
+            <h2 id="userGreeting">Dashboard</h2>
+            <p id="userEmail">Loading...</p>
         </div>
         <ul>
             <li><a href="/dashboard.html"><i class="fa fa-home fa-fw"></i> Dashboard</a></li>
@@ -463,6 +475,7 @@
         loadOnlineUsers();
 
         setInterval(loadOnlineUsers, 10000);
+
         setInterval(updateUserActivity, 60000);
     </script>
 </body>
