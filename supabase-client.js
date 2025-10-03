@@ -6,7 +6,8 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function getCurrentUser() {
-    const userId = sessionStorage.getItem('userId');
+    // UBAH: Gunakan localStorage bukan sessionStorage
+    const userId = localStorage.getItem('userId');
     if (!userId) return null;
 
     try {
@@ -47,9 +48,9 @@ export async function loginUser(username, password) {
             return { success: false, error: 'Username atau password salah' };
         }
 
-        // Simpan data user ke sessionStorage
-        sessionStorage.setItem('userId', data.id);
-        sessionStorage.setItem('username', data.username);
+        // UBAH: Simpan data user ke localStorage (bukan sessionStorage)
+        localStorage.setItem('userId', data.id);
+        localStorage.setItem('username', data.username);
 
         // Mark user as online
         await markUserOnline(data.id, data.username);
@@ -108,7 +109,8 @@ export async function signupUser(nik, username, email, password) {
 
 export async function logoutUser() {
     try {
-        const userId = sessionStorage.getItem('userId');
+        // UBAH: Gunakan localStorage
+        const userId = localStorage.getItem('userId');
         if (userId) {
             await supabase
                 .from('online_users')
@@ -118,8 +120,9 @@ export async function logoutUser() {
     } catch (err) {
         console.error('Error during logout:', err);
     } finally {
-        sessionStorage.removeItem('userId');
-        sessionStorage.removeItem('username');
+        // UBAH: Hapus dari localStorage
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
         window.location.href = '/login.html';
     }
 }
@@ -148,10 +151,11 @@ export async function markUserOnline(userId, username) {
 }
 
 export async function updateUserActivity() {
-    const userId = sessionStorage.getItem('userId');
+    // UBAH: Gunakan localStorage
+    const userId = localStorage.getItem('userId');
     if (!userId) return;
 
-    const username = sessionStorage.getItem('username');
+    const username = localStorage.getItem('username');
     await markUserOnline(userId, username);
 }
 
@@ -178,7 +182,8 @@ export async function getOnlineUsers() {
 }
 
 export function isAuthenticated() {
-    return sessionStorage.getItem('userId') !== null;
+    // UBAH: Gunakan localStorage
+    return localStorage.getItem('userId') !== null;
 }
 
 export function requireAuth() {
