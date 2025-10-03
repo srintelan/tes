@@ -316,6 +316,36 @@
             color: #666;
             font-size: 14px;
         }
+
+        /* --- RESPONSIF --- */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 80%;
+                max-width: 300px;
+            }
+            .main-content {
+                padding: 70px 15px 15px 15px;
+            }
+            .menu-btn {
+                top: 10px;
+                left: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 100%;
+            }
+            .menu-card {
+                padding: 20px;
+            }
+            .menu-card i {
+                font-size: 36px;
+            }
+            .menu-card h3 {
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -371,7 +401,7 @@
                 <p>Hitung kebutuhan box untuk produksi</p>
             </a>
         </div>
-<br></br>
+        <br>
         <div class="online-users-section">
             <h2>
                 <i class="fa fa-users"></i>
@@ -451,7 +481,6 @@
         loadOnlineUsers();
 
         setInterval(loadOnlineUsers, 10000);
-
         setInterval(updateUserActivity, 60000);
     </script>
 </body>
