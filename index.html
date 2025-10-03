@@ -1,22 +1,83 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Produksi</title>
-    <script type="module">
-        import { isAuthenticated } from './supabase-client.js';
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Produksi</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #fff;
+    }
 
-        if (isAuthenticated()) {
-            window.location.href = '/dashboard.html';
-        } else {
-            window.location.href = '/login.html';
-        }
-    </script>
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 6px solid rgba(255, 255, 255, 0.3);
+      border-top: 6px solid #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Animasi teks */
+    .loading-text {
+      font-size: 1.2rem;
+      font-weight: 500;
+      letter-spacing: 2px;
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Responsif */
+    @media (max-width: 600px) {
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border-width: 4px;
+      }
+      .loading-text {
+        font-size: 1rem;
+      }
+    }
+  </style>
+
+  <script type="module">
+    import { isAuthenticated } from './supabase-client.js';
+
+    if (isAuthenticated()) {
+      window.location.href = '/dashboard.html';
+    } else {
+      window.location.href = '/login.html';
+    }
+  </script>
 </head>
 <body>
-    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif;">
-        <p>Loading...</p>
-    </div>
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <p class="loading-text">Memuat Sistem Produksi...</p>
+  </div>
 </body>
 </html>
